@@ -4,6 +4,7 @@
   "description": "app to help manage apartment chores",
   "main": "index.js",
   "scripts": {
+    "production": "npm install && node index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
