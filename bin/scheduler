@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+
+const moment = require('moment')
+const _ = require('lodash')
+
+const { getData, setData } = require('../data');
+
+function getCurrentWeek(data) {
+  const currentWeekNumber = moment().isoWeek(); // TODO add 1, adjust for sunday
+  // parse the data into this format: [{ weekNumber, name }]
+  const rows = data
+    .split('\n')
+    .map(row => {
+      const [weekNumber, name] = row.split(',').map(col => col.trim())
+      return { weekNumber, name }
+    });
+
+  return _.find(rows, { weekNumber: currentWeekNumber });
+}
+
+getData((err, data) => {
+  if (err) {
+    // TODO text steve
+    console.error(err);
+  }
+
+  const currentWeek = getCurrentWeek(data);
+  console.log(currentWeek, data)
+
+})

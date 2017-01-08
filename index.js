@@ -1,30 +1,11 @@
 'use strict';
 
 const express = require('express')
-// const moment = require('moment')
-// const twilio = require('twilio')
-const fs = require('fs');
 const config = require('./config');
+const { getData, setData } = require('./data');
 
 const app = express();
 config(app);
-
-const choresPath = './chores.txt';
-
-function getData(cb) {
-  fs.readFile(choresPath, 'utf8', (err, data) => {
-    if (err) console.error(err);
-    cb(null, data);
-  })
-}
-
-function setData(setter, cb) {
-  getData((err, chores) => {
-    if (err) console.error(err);
-    fs.writeFile(choresPath, setter(chores), cb);
-  })
-}
-
 
 // setData(chores => chores + '\nstuff')
 
