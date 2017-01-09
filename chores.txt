@@ -1,6 +1,6 @@
 1,steve
-2,tom
-3,max
+2,steve
+3,steve
 4,steve
 5,tom
 6,max

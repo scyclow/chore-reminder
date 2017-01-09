@@ -18,7 +18,8 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
   const { chores, password } = req.body;
-  if (password !== 'StompLookAndListen') return res.send('Fuck you.');
+  // if correct password is not included, don't reset the times.
+  if (password !== process.env.PASSWORD) return res.send('Fuck you.');
   console.log('Setting data')
   setData(
     () => chores, // overwrite chores.txt

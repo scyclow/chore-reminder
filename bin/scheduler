@@ -1,14 +1,24 @@
 #!/usr/bin/env node
 
 const moment = require('moment')
+const twilio = require('twilio')
 const _ = require('lodash')
 
 const { getData, setData } = require('../data');
 
-function getCurrentWeek(data) {
-  const currentWeekNumber = moment().isoWeek(); // TODO add 1, adjust for sunday
-  // parse the data into this format: [{ weekNumber, name }]
+const today = moment();
 
+const {
+  TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
+  STEVE_NUMBER, MAX_NUMBER, TOM_NUMBER
+} = process.env;
+
+const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+function getCurrentWeek(data) {
+  const currentWeekNumber = today.isoWeek(); // TODO add 1, adjust for sunday
+
+  // parse the data into this format: [{ weekNumber, name }]
   const rows = data
     .split('\n')
     .map(row => {
@@ -21,13 +31,32 @@ function getCurrentWeek(data) {
   return _.find(rows, row => row.weekNumber == currentWeekNumber);
 }
 
+// job is set to run daily
+const daysToNotify = [4,5,6,0];
+
+const phoneNumbers = {
+  steve: STEVE_NUMBER,
+  tom: TOM_NUMBER,
+  max: MAX_NUMBER
+};
+
 getData((err, data) => {
   if (err) {
     // TODO text steve
-    console.error(err);
+    return console.error(err);
   }
 
-  const currentWeek = getCurrentWeek(data);
-  console.log(currentWeek, data)
+  // if (!_.includes(daysToNotify, today.day())) return;
 
+  const currentWeek = getCurrentWeek(data);
+  const phoneNumber = phoneNumbers[currentWeek.name];
+  client.messages.create({
+    body: 'Clean the fucking apartment',
+    to: '+' + phoneNumber,
+    from: '+19179245379'
+  }, (err, message) => {
+    if (err) return console.log(err)
+    console.log(message.sid);
+  });
+  console.log(currentWeek, data)
 })
