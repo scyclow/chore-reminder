@@ -57,7 +57,7 @@ app.post('/markWeekComplete', (req, res) => {
       return weeks;
     }
   });
-  // req.status(200);
+  req.status(200);
 });
 
 
