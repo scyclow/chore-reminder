@@ -31,6 +31,17 @@ app.post('/', (req, res) => {
   )
 });
 
+app.post('/markWeekComplete', (req, res) => {
+  // setData(weeks => {
+  //   const currentWeek = getCurrentWeek(weeks);
+  //   currentWeek.complete = true
+
+  //   return weeks;
+  // });
+  // req.status(200);
+console.log(req.body)
+});
+
 
 const port = process.env.port || 3003;
 app.listen(port, (err) => {
@@ -40,3 +51,15 @@ app.listen(port, (err) => {
   console.log(`App listening on port ${port}`);
 });
 
+
+
+
+function getCurrentWeek(weeks) {
+  const today = moment().subtract(5, 'hours');
+
+  const currentWeekNumber = today.day() > 0
+    ? today.isoWeek()
+    : today.isoWeek() - 1; // if sunday, count towards previous week
+
+  return _.find(weeks, week => week.weekNumber === currentWeekNumber);
+}

@@ -1,38 +1,29 @@
 #!/usr/bin/env node
 
-const moment = require('moment')
-const twilio = require('twilio')
-const _ = require('lodash')
+/*
+  jobs scheduled at https://scheduler.heroku.com/dashboard
+  Should run DAILY at the following times IN UTC:
+    23:00 (UTC),
+    01:00 (UTC),
+    03:00 (UTC)
+*/
+
+const moment = require('moment');
+const twilio = require('twilio');
+const _ = require('lodash');
 
 const { getData, setData } = require('../data');
-
-const today = moment();
 
 const {
   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
   STEVE_NUMBER, MAX_NUMBER, TOM_NUMBER
 } = process.env;
 
-const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-function getCurrentWeek(data) {
-  const currentWeekNumber = today.isoWeek(); // TODO add 1, adjust for sunday
-
-  // parse the data into this format: [{ weekNumber, name }]
-  const rows = data
-    .split('\n')
-    .map(row => {
-      const [weekNumber, name] = row.split(',').map(col => col.trim())
-      return { weekNumber, name }
-    });
-
-  // row.weekNumber: string
-  // currentWeekNumber: number
-  return _.find(rows, row => row.weekNumber == currentWeekNumber);
-}
-
-// job is set to run daily
+const today = moment().subtract(5, 'hours'); // CONVERT TO EASTERN (script ran in UTC)
 const daysToNotify = [4,5,6,0];
+// if (!_.includes(daysToNotify, today.day())) return;
+
 
 const phoneNumbers = {
   steve: STEVE_NUMBER,
@@ -40,18 +31,30 @@ const phoneNumbers = {
   max: MAX_NUMBER
 };
 
-const message = `Hey Max, this is Steve. I\'m testing this shit out. You get this okay? Clean the apartment`
+const cleanAptMessage = `Hey Max, this is Steve. I\'m testing this shit out. You get this okay? Clean the apartment`
 
-function sendTextMessage (phoneNumber) {
+function getCurrentWeek(weeks) {
+  const currentWeekNumber = today.day() > 0
+    ? today.isoWeek()
+    : today.isoWeek() - 1; // if sunday, count towards previous week
+
+
+  return _.find(weeks, week => week.weekNumber === currentWeekNumber);
+}
+
+function sendTextMessage (phoneNumber, msg) {
+  const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
   client.messages.create({
-    body: message,
+    body: msg,
     to: '+1' + phoneNumber,
     from: '+19179245379'
   }, (err, message) => {
-    if (err) return console.log(err)
-    console.log(message.sid);
+    if (err) return console.error(err);
+    console.log(`Text sent to [+1${phoneNumber}] with message sid: ${message.sid}`);
   });
 }
+
+
 
 getData((err, data) => {
   if (err) {
@@ -59,13 +62,10 @@ getData((err, data) => {
     return console.error(err);
   }
 
-  // if (!_.includes(daysToNotify, today.day())) return;
-
   const currentWeek = getCurrentWeek(data);
   const phoneNumber = phoneNumbers[currentWeek.name];
 
-  // sendTextMessage (phoneNumber)
+  // sendTextMessage(phoneNumber, cleanAptMessage)
 
-  console.log(currentWeek, data)
-  console.log(today.hour())
-})
+  console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
+});
