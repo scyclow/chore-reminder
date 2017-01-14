@@ -1,7 +1,11 @@
 'use strict';
 
 const express = require('express')
+const moment = require('moment')
+const _ = require('lodash')
 const config = require('./config');
+const childProcess = require('child_process')
+
 const { getData, setData } = require('./data');
 
 const app = express();
@@ -43,21 +47,31 @@ app.post('/', (req, res) => {
 });
 
 app.post('/markWeekComplete', (req, res) => {
-  console.log(`Received a text from: ${req.body}`)
+  console.log(`Received a text from: ${JSON.stringify(req.body, null, 3)}`)
 
   const { Body, From } = req.body;
-  setData(weeks => {
-    const currentWeek = getCurrentWeek(weeks);
-    const name = currentWeek.name;
-    if (phoneNumbers[name] === From && Body.toLowerCase() === 'clean') {
-      currentWeek.complete = true
-      return weeks;
-    }
-    else {
-      return weeks;
-    }
-  });
-  req.status(200);
+
+
+  const isReminder = Body.toLowerCase().match(/^remind/)
+  const isCompletion = Body.toLowerCase() === 'clean';
+
+  if (isReminder) {
+    childProcess.fork('./bin/scheduler')
+  }
+
+  // setData(weeks => {
+  //   const currentWeek = getCurrentWeek(weeks);
+  //   const name = currentWeek.name;
+  //   if (isCompletion && phoneNumbers[name] === From) {
+  //     currentWeek.complete = true
+  //     return weeks;
+  //   }
+  //   else {
+  //     return weeks;
+  //   }
+  // });
+
+  res.status(200);
 });
 
 

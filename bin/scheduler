@@ -49,7 +49,7 @@ const cleanAptMessage = (name) => _.sample([
   `Hey ${name}, clean the apartment`,
   `hey ${name}, clean the apartment.`,
   `hey ${name}, clean the apartment`,
-  `do the cleaning thing you're supposed to do.`
+  `do the cleaning thing you're supposed to do.`,
   `clean the place. c'mon, it'll only take 30 minutes.`,
   `clean`,
   `CLLLLLLLEEEEEEEEEEEEEEAAAAAAAAAAAAAAAANNNNNNNNNNNNN`,
@@ -76,35 +76,55 @@ function getCurrentWeek(weeks) {
 }
 
 function sendTextMessage (phoneNumber, msg) {
+  console.log('TEXTING')
   const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  console.log('TEXTING NOOOOW')
+  try {
   client.messages.create({
     body: msg,
     to: phoneNumber,
     from: '+19179245379'
   }, (err, message) => {
-    if (err) return console.error(err);
+    if (err) return console.log(err);
     console.log(`Text sent to [${phoneNumber}] with message sid: ${message.sid}`);
   });
+} catch(e) {
+  console.log('something got fucke dup', e)
+}
 }
 
 
 
-getData((err, data) => {
-  if (err) {
-    // TODO text steve
-    return console.error(err);
-  }
+console.log('GETTING DATA')
+try {
 
-  const currentWeek = getCurrentWeek(data);
-  if (currentWeek.completed) return;
-  const phoneNumber = phoneNumbers[currentWeek.name];
+  getData((err, data) => {
+    console.log('IS ANYTHING HAPPENING????')
+    if (err) {
+      // TODO text steve
+      return console.log(err);
+    }
+    console.log('NO ERROR')
+    const currentWeek = getCurrentWeek(data);
+    console.log('CURREN WEEK:', currentWeek)
 
+    if (!currentWeek) {
+      console.log("NO CURRENT WEEK HERERS DATA:", data)
+      return console.log(new Error('Could not find current week. Here is the data:', JSON.stringify(data, null, 3)))
+    }
 
-let i = 0;const textInterval = setInterval(() => {if (i === 5) { clearInterval(textInterval); return }
-////
-  sendTextMessage(phoneNumber, cleanAptMessage(currentWeek.name));
-////
-i++ }, 60000 )
+    // if (currentWeek.completed) return;
+    const phoneNumber = phoneNumbers[currentWeek.name];
+  console.log("ABOUT TO TEXT")
 
-  console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
-});
+  // let i = 0;const textInterval = setInterval(() => {if (i === 5) { clearInterval(textInterval); return }
+  ////
+    sendTextMessage(phoneNumber, cleanAptMessage(currentWeek.name));
+  ////
+  // i++ }, 60000 )
+
+    console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
+  });
+} catch (e) {
+  console.log('')
+}

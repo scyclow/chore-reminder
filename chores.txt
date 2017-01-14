@@ -1,8 +1,8 @@
-0,steve,false
-1,steve,false
-2,steve,false
-3,steve,false
-4,steve,false
+0,max,false
+1,max,false
+2,max,false
+3,max,false
+4,max,false
 5,tom,false
 6,max,false
 7,steve,false
