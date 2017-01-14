@@ -50,9 +50,9 @@ getData((err, data) => {
 
   const currentWeek = getCurrentWeek(data);
   // const phoneNumber = phoneNumbers[currentWeek.name];
-  const phoneNumber = phoneNumbers.steve;
+  const phoneNumber = phoneNumbers.max;
   client.messages.create({
-    body: 'Clean the fucking apartment',
+    body: 'Hey Max, this is Steve. I\'m testing this shit out. You get this okay? Clean the apartment',
     to: '+1' + phoneNumber,
     from: '+19179245379'
   }, (err, message) => {
