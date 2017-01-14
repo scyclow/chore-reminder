@@ -40,6 +40,19 @@ const phoneNumbers = {
   max: MAX_NUMBER
 };
 
+const message = `Hey Max, this is Steve. I\'m testing this shit out. You get this okay? Clean the apartment`
+
+function sendTextMessage (phoneNumber) {
+  client.messages.create({
+    body: message,
+    to: '+1' + phoneNumber,
+    from: '+19179245379'
+  }, (err, message) => {
+    if (err) return console.log(err)
+    console.log(message.sid);
+  });
+}
+
 getData((err, data) => {
   if (err) {
     // TODO text steve
@@ -49,15 +62,10 @@ getData((err, data) => {
   // if (!_.includes(daysToNotify, today.day())) return;
 
   const currentWeek = getCurrentWeek(data);
-  // const phoneNumber = phoneNumbers[currentWeek.name];
-  const phoneNumber = phoneNumbers.max;
-  client.messages.create({
-    body: 'Hey Max, this is Steve. I\'m testing this shit out. You get this okay? Clean the apartment',
-    to: '+1' + phoneNumber,
-    from: '+19179245379'
-  }, (err, message) => {
-    if (err) return console.log(err)
-    console.log(message.sid);
-  });
+  const phoneNumber = phoneNumbers[currentWeek.name];
+
+  // sendTextMessage (phoneNumber)
+
   console.log(currentWeek, data)
+  console.log(today.hour())
 })
