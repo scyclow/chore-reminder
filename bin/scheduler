@@ -49,10 +49,11 @@ getData((err, data) => {
   // if (!_.includes(daysToNotify, today.day())) return;
 
   const currentWeek = getCurrentWeek(data);
-  const phoneNumber = phoneNumbers[currentWeek.name];
+  // const phoneNumber = phoneNumbers[currentWeek.name];
+  const phoneNumber = phoneNumbers.steve;
   client.messages.create({
     body: 'Clean the fucking apartment',
-    to: '+' + phoneNumber,
+    to: '+1' + phoneNumber,
     from: '+19179245379'
   }, (err, message) => {
     if (err) return console.log(err)
