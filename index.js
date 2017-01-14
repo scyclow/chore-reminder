@@ -7,6 +7,17 @@ const { getData, setData } = require('./data');
 const app = express();
 config(app);
 
+const {
+  TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
+  STEVE_NUMBER, MAX_NUMBER, TOM_NUMBER
+} = process.env;
+
+const phoneNumbers = {
+  steve: STEVE_NUMBER,
+  tom: TOM_NUMBER,
+  max: MAX_NUMBER
+};
+
 // setData(chores => chores + '\nstuff')
 
 app.get('/', (req, res) => {
@@ -32,14 +43,21 @@ app.post('/', (req, res) => {
 });
 
 app.post('/markWeekComplete', (req, res) => {
-  // setData(weeks => {
-  //   const currentWeek = getCurrentWeek(weeks);
-  //   currentWeek.complete = true
+  console.log(`Received a text from: ${req.body}`)
 
-  //   return weeks;
-  // });
+  const { Body, From } = req.body;
+  setData(weeks => {
+    const currentWeek = getCurrentWeek(weeks);
+    const name = currentWeek.name;
+    if (phoneNumbers[name] === From && Body.toLowerCase() === 'clean') {
+      currentWeek.complete = true
+      return weeks;
+    }
+    else {
+      return weeks;
+    }
+  });
   // req.status(200);
-  console.log(req.body)
 });
 
 
