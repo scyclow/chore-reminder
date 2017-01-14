@@ -3,9 +3,10 @@
 /*
   jobs scheduled at https://scheduler.heroku.com/dashboard
   Should run DAILY at the following times IN UTC:
-    23:00 (UTC),
-    01:00 (UTC),
-    03:00 (UTC)
+    23:00 (UTC) => 18:00 (ET)
+    23:30 (UTC) => 18:30 (ET)
+    01:00 (UTC) => 20:00 (ET)
+    03:00 (UTC) => 22:00 (ET)
 */
 
 const moment = require('moment');
@@ -31,7 +32,39 @@ const phoneNumbers = {
   max: MAX_NUMBER
 };
 
-const cleanAptMessage = `Hey Max, this is Steve. I\'m testing this shit out. You get this okay? Clean the apartment`
+const cleanAptMessage = (name) => _.sample([
+  `clean the fuckin' apartment!`,
+  `clean clean clean clean clean clean clean clean clean.`,
+  `cleaning sets the soul free.`,
+  `you're a dirty, dirty boy.`,
+  `clean the apartment.`,
+  `clean the apartment.`,
+  `clean the apartment`,
+  `clean the apartment`,
+  `Clean the apartment.`,
+  `Clean the apartment.`,
+  `Clean the apartment`,
+  `Clean the apartment`,
+  `Hey ${name}, clean the apartment.`,
+  `Hey ${name}, clean the apartment`,
+  `hey ${name}, clean the apartment.`,
+  `hey ${name}, clean the apartment`,
+  `do the cleaning thing you're supposed to do.`
+  `clean the place. c'mon, it'll only take 30 minutes.`,
+  `clean`,
+  `CLLLLLLLEEEEEEEEEEEEEEAAAAAAAAAAAAAAAANNNNNNNNNNNNN`,
+  `you know the drill`,
+  `${name}. clean. now.`,
+  `if you clean the apartment, then the aparment will be clean.`,
+  `${name}${name}${name} cleancleanclean`,
+  `you're up for cleaning.`,
+  `C\nL\nE\nA\nN\n!`,
+  `CCCC\nLLLL\nEEEE\nAAAA\nNNNN\n!!!!`,
+  `Why haven't you cleaned yet?`,
+  `you clean the place yet?`,
+  `clean apartment`,
+  `The place is a dump, and it smells bad. But good news! You're going to clean it, and then it'll be awsome.`
+]);
 
 function getCurrentWeek(weeks) {
   const currentWeekNumber = today.day() > 0
@@ -46,11 +79,11 @@ function sendTextMessage (phoneNumber, msg) {
   const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
   client.messages.create({
     body: msg,
-    to: '+1' + phoneNumber,
+    to: phoneNumber,
     from: '+19179245379'
   }, (err, message) => {
     if (err) return console.error(err);
-    console.log(`Text sent to [+1${phoneNumber}] with message sid: ${message.sid}`);
+    console.log(`Text sent to [${phoneNumber}] with message sid: ${message.sid}`);
   });
 }
 
@@ -63,9 +96,15 @@ getData((err, data) => {
   }
 
   const currentWeek = getCurrentWeek(data);
+  if (currentWeek.completed) return;
   const phoneNumber = phoneNumbers[currentWeek.name];
 
-  // sendTextMessage(phoneNumber, cleanAptMessage)
+
+let i = 0;const textInterval = setInterval(() => {if (i === 5) { clearInterval(textInterval); return }
+////
+  sendTextMessage(phoneNumber, cleanAptMessage(currentWeek.name));
+////
+i++ }, 60000 )
 
   console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
 });
