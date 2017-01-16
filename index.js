@@ -1,12 +1,13 @@
 'use strict';
 
 const express = require('express')
+const twilio = require('twilio')
 const moment = require('moment')
 const _ = require('lodash')
 const config = require('./config');
 const childProcess = require('child_process')
 
-const { getData, setData } = require('./data');
+const { getData, setData, confirmWeek } = require('./data');
 
 const app = express();
 config(app);
@@ -56,13 +57,28 @@ app.post('/markWeekComplete', (req, res) => {
   const isCompletion = Body.toLowerCase() === 'clean';
 
   if (isReminder) {
+    // TODO pull out actual texting logic -- have scheduler and this code call the texting logic
+    // scheduler should only handle the time logic
     childProcess.fork('./bin/scheduler')
   }
 
+  if (isCompletion) {
+    getData((err, weeks) => {
+      const currentWeek = getCurrentWeek(weeks);
+      const name = currentWeek.name;
+      confirmWeek(currentWeek.weekNumber, name, (err, confirmations) => {
+        if (confirmations < 2) {
+          const namesToText = Object.keys(phoneNumbers)
+          _.remove(namesToText, name);
+          namesToText.forEach(nameToText => {
+            sendTextMessage(phoneNumbers[nameToText], `${name} claims that the apartment is clean. Can one of you confirm?`)
+          });
+        }
+      })
+    })
+  }
+
   // setData(weeks => {
-  //   const currentWeek = getCurrentWeek(weeks);
-  //   const name = currentWeek.name;
-  //   if (isCompletion && phoneNumbers[name] === From) {
   //     currentWeek.complete = true
   //     return weeks;
   //   }
@@ -94,4 +110,17 @@ function getCurrentWeek(weeks) {
     : today.isoWeek() - 1; // if sunday, count towards previous week
 
   return _.find(weeks, week => week.weekNumber === currentWeekNumber);
+}
+
+function sendTextMessage (phoneNumber, msg) {
+  const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+  client.messages.create({
+    body: msg,
+    to: phoneNumber,
+    from: '+19179245379'
+  }, (err, message) => {
+    if (err) return console.log(err);
+    console.log(`Text sent to [${phoneNumber}] with message sid: ${message.sid}`);
+  });
 }
