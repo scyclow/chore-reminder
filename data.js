@@ -5,7 +5,7 @@ const moment = require('moment');
 const _ = require('lodash');
 const rp = require('request-promise');
 
-const today = moment();
+const today = moment().subtract(5, 'hours')
 
 const choresPath = './chores.txt';
 

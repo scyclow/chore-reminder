@@ -23,7 +23,7 @@ const {
 
 const today = moment().subtract(5, 'hours'); // CONVERT TO EASTERN (script ran in UTC)
 const daysToNotify = [4,5,6,0];
-// if (!_.includes(daysToNotify, today.day())) return;
+if (!_.includes(daysToNotify, today.day())) return;
 
 
 const phoneNumbers = {
@@ -90,7 +90,18 @@ getWeek()
 
     const phoneNumber = phoneNumbers[week.name];
 
-    sendTextMessage(phoneNumber, cleanAptMessage(week.name));
+    if (today.day() === 1 && today.hour() === 18) {
+      _.each(phoneNumbers, (number, nameToText) => {
+        const someoneNeeds = week.name === nameToText
+          ? 'you need'
+          : `${week.name} needs`;
+
+        sendTextMessage(number, `Good evening ${nameToText}, this week (${week.weekNumber}) ${someoneNeeds} to clean the apartment`);
+      })
+    }
+    else {
+      sendTextMessage(phoneNumber, cleanAptMessage(week.name));
+    }
     console.log('WEEK:', week)
 
     console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
