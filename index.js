@@ -23,8 +23,6 @@ const phoneNumbers = {
   max: MAX_NUMBER
 };
 
-// setData(chores => chores + '\nstuff')
-
 app.get('/', (req, res) => {
   getData((err, data) => {
     console.log('Sending data')
@@ -47,11 +45,22 @@ app.post('/', (req, res) => {
   )
 });
 
+function sendConfirmationText(confirmations) {
+  if (confirmations.length > 1) return console.log('CONFIRMATIONS:', confirmations);
+
+  const name = confirmations[0];
+  const namesToText = Object.keys(phoneNumbers).filter(key => key !== name)
+
+  console.log('TEXTING:', namesToText)
+  namesToText.forEach(nameToText => {
+    sendTextMessage(phoneNumbers[nameToText], `${name} claims that the apartment is clean. Can you confirm?`)
+  });
+}
+
 app.post('/markWeekComplete', (req, res) => {
   console.log(`Received a text from: ${JSON.stringify(req.body, null, 3)}`)
 
   const { Body, From } = req.body;
-
 
   const isReminder = Body.toLowerCase().match(/^remind/)
   const isCompletion = Body.toLowerCase() === 'clean';
@@ -63,29 +72,14 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   if (isCompletion) {
-    getData((err, weeks) => {
-      const currentWeek = getCurrentWeek(weeks);
-      const name = currentWeek.name;
-      confirmWeek(currentWeek.weekNumber, name, (err, confirmations) => {
-        if (confirmations < 2) {
-          const namesToText = Object.keys(phoneNumbers)
-          _.remove(namesToText, name);
-          namesToText.forEach(nameToText => {
-            sendTextMessage(phoneNumbers[nameToText], `${name} claims that the apartment is clean. Can one of you confirm?`)
-          });
-        }
-      })
-    })
+    // TODO get name from sender number
+    const name = _.findKey(phoneNumbers, (value) => value === From)
+    console.log('TEXT FROM:', name)
+    confirmWeek(name)
+      .then(data => data.week.confirmations)
+      .then(sendConfirmationText)
+      .catch(err => console.log(err))
   }
-
-  // setData(weeks => {
-  //     currentWeek.complete = true
-  //     return weeks;
-  //   }
-  //   else {
-  //     return weeks;
-  //   }
-  // });
 
   res.status(200);
 });
@@ -113,6 +107,8 @@ function getCurrentWeek(weeks) {
 }
 
 function sendTextMessage (phoneNumber, msg) {
+  if (process.env.NODE_ENV !== 'production') return;
+
   const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
   client.messages.create({

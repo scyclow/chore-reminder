@@ -13,7 +13,7 @@ const moment = require('moment');
 const twilio = require('twilio');
 const _ = require('lodash');
 
-const { getData, setData, isWeekComplete, confirmWeek } = require('../data');
+const { getWeek } = require('../data');
 
 const {
   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
@@ -32,8 +32,6 @@ const phoneNumbers = {
   max: MAX_NUMBER
 };
 
-[1,2,3,4,5,6, ``,``, `max`]
-
 // TODO -- add pictures/memes
 const cleanAptMessage = (name) => _.sample(_.shuffle([
   `clean the fuckin' apartment!`,
@@ -43,7 +41,7 @@ const cleanAptMessage = (name) => _.sample(_.shuffle([
   `Take out the fuckin trash or something`,
   `Why don't you make yourself useful and wash the goddamn floor??`,
   `Hi deary, would you be a sweatheart and clean the apartment`,
-  `Dearest ${name}, please be kind and tiddy up.`
+  `Dearest ${name}, please be kind and tiddy up.`,
   `clean the fucking apartment, you jerk`,
   `clean the apartment.`,
   `Hey ${name}, clean the apartment.`,
@@ -67,15 +65,10 @@ const cleanAptMessage = (name) => _.sample(_.shuffle([
   `cleanliness is godliness`
 ]));
 
-function getCurrentWeek(weeks) {
-  const currentWeekNumber = today.day() > 0
-    ? today.isoWeek()
-    : today.isoWeek() - 1; // if sunday, count towards previous week
-
-  return _.find(weeks, week => week.weekNumber === currentWeekNumber);
-}
 
 function sendTextMessage (phoneNumber, msg) {
+  if (process.env.NODE_ENV !== 'production') return;
+
   const client = new twilio.RestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
   client.messages.create({
@@ -88,21 +81,21 @@ function sendTextMessage (phoneNumber, msg) {
   });
 }
 
-getData((err, data) => {
-  if (err) {
+getWeek()
+  .then(week => {
+    console.log(week)
+    if (week.confirmations.length >= 2) {
+      return console.log('Apartment already clean. Confirmed by:', week.confirmations);
+    }
+
+    const phoneNumber = phoneNumbers[week.name];
+
+    sendTextMessage(phoneNumber, cleanAptMessage(week.name));
+    console.log('WEEK:', week)
+
+    console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
+  })
+  .catch(err => {
     // TODO text steve
-    return console.log(err);
-  }
-  const currentWeek = getCurrentWeek(data);
-
-  if (!currentWeek) {
-    return console.log(new Error('Could not find current week. Here is the data:', JSON.stringify(data, null, 3)))
-  }
-
-  if (isWeekComplete(currentWeek.weekNumber)) return;
-
-  const phoneNumber = phoneNumbers[currentWeek.name];
-  sendTextMessage(phoneNumber, cleanAptMessage(currentWeek.name));
-
-  console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
-});
+    console.log(err);
+  })

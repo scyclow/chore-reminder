@@ -1,6 +1,11 @@
 'use stict';
 
 const fs = require('fs');
+const moment = require('moment');
+const _ = require('lodash');
+const rp = require('request-promise');
+
+const today = moment();
 
 const choresPath = './chores.txt';
 
@@ -22,11 +27,61 @@ const unformatData = (data) => data
   .join('\n');
 
 
-function getData(cb) {
+function getData(cb = _.noop) {
+  let resolve, reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
   fs.readFile(choresPath, 'utf8', (err, data) => {
-    if (err) return console.log(err);
-    cb(null, formatData(data));
+    if (err) {
+      reject(err)
+      return console.log(err)
+    };
+
+    const formatted = formatData(data);
+    resolve(formatted)
+    cb(null, formatted);
+  });
+
+  return promise;
+}
+
+function getCurrentWeek(weeks) {
+  const currentWeekNumber = today.day() > 0
+    ? today.isoWeek()
+    : today.isoWeek() - 1; // if sunday, count towards previous week
+
+  return _.find(weeks, week => week.weekNumber === currentWeekNumber);
+}
+
+const ROUTE = process.env.NODE_ENV === 'production'
+  ? 'https://fastcashmoneyplus.herokuapp.com/'
+  : 'http://localhost:8421/';
+
+function getCurrentWeekStatus() {
+  return rp({
+    uri: ROUTE + 'api/mrclean/getWeek',
+    headers: {
+      'User-Agent': 'Request-Promise'
+    },
+    json: true
   })
+}
+
+function getWeek() {
+
+  const currentWeek = getData().then(data => getCurrentWeek(data))
+  const currentWeekStatus = getCurrentWeekStatus();
+
+  return Promise
+    .all([currentWeek, currentWeekStatus])
+    .then(([current, status]) => {
+      console.log(Object.keys(current))
+      current.confirmations = status.week.confirmations;
+      return current;
+    })
 }
 
 function setData(setter, cb) {
@@ -37,22 +92,15 @@ function setData(setter, cb) {
   })
 }
 
-const DB_PATH = './db.json';
+function confirmWeek(name) {
+  const uri = `${ROUTE}api/mrclean/markWeekComplete/${name}`;
 
-function confirmWeek(weekNumber, name, cb = _.noop) {
-  const db = require(DB_PATH)
-  if (!_.includes(db[weekNumber].confirmations, name)) {
-    db[weekNumber].confirmations.push(name);
-    fs.writeFile(DB_PATH, JSON.stringify(db), (err) => {
-      cb(err, db[weekNumber].confirmations)
-    });
-  }
+  return rp({
+    uri,
+    method: 'POST',
+    json: true
+  })
 }
 
-function isWeekComplete(weekNumber) {
-  const db = require(DB_PATH)
-  return db[weekNumber] && db[weekNumber].confirmations.length >= 2;
-}
-
-module.exports = { getData, setData, isWeekComplete, confirmWeek };
+module.exports = { getData, setData, confirmWeek, getWeek };
 
