@@ -46,7 +46,12 @@ app.post('/', (req, res) => {
 });
 
 function sendConfirmationText(confirmations) {
-  if (confirmations.length > 1) return console.log('CONFIRMATIONS:', confirmations);
+  if (confirmations.length > 1) {
+    _.forEach(phoneNumbers, number => {
+      sendTextMessage(number, 'The apartment is now clean, according to: ' + confirmations.join(', '))
+    });
+    return console.log('CONFIRMATIONS:', confirmations);
+  }
 
   const name = confirmations[0];
   const namesToText = Object.keys(phoneNumbers).filter(key => key !== name)
@@ -72,7 +77,6 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   if (isCompletion) {
-    // TODO get name from sender number
     const name = _.findKey(phoneNumbers, (value) => value === From)
     console.log('TEXT FROM:', name)
     confirmWeek(name)

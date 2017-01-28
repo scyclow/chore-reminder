@@ -93,7 +93,7 @@ getWeek()
     if (today.day() === 1 && today.hour() === 18) {
       _.each(phoneNumbers, (number, nameToText) => {
         const someoneNeeds = week.name === nameToText
-          ? 'you need'
+          ? 'YOU need'
           : `${week.name} needs`;
 
         sendTextMessage(number, `Good evening ${nameToText}, this week (${week.weekNumber}) ${someoneNeeds} to clean the apartment`);
