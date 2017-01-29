@@ -7,7 +7,7 @@ const _ = require('lodash')
 const config = require('./config');
 const childProcess = require('child_process')
 
-const { getData, setData, confirmWeek } = require('./data');
+const { getData, setData, markWeekComplete } = require('./data');
 
 const app = express();
 config(app);
@@ -68,7 +68,7 @@ app.post('/markWeekComplete', (req, res) => {
   const { Body, From } = req.body;
 
   const isReminder = Body.toLowerCase().match(/^remind/)
-  const isCompletion = Body.toLowerCase() === 'clean';
+  const isCompletion = Body.toLowerCase().match(/(clean)|(confirm)|(yes)/);
 
   if (isReminder) {
     // TODO pull out actual texting logic -- have scheduler and this code call the texting logic
@@ -76,23 +76,24 @@ app.post('/markWeekComplete', (req, res) => {
     childProcess.fork('./bin/scheduler')
   }
 
-  if (isCompletion) {
+  else if (isCompletion) {
     const name = _.findKey(phoneNumbers, (value) => value === From)
     if (!name) {
       console.log('NAME NOT FOUND')
       console.log('TEXT FROM NUMBER:', From)
       console.log('ALL NUMBERS:', JSON.stringify(phoneNumbers, null, 3))
+      return;
     }
-    else {
-      console.log('RECEIVED TEXT FROM:', name)
-    }
-    confirmWeek(name)
+
+    console.log('RECEIVED TEXT FROM:', name)
+    markWeekComplete(name)
       .then(data => data.week.confirmations)
-      // .then(sendConfirmationText)
+      .then(sendConfirmationText)
       .catch(err => console.log(err))
+
   }
 
-  res.status(200);
+  res.status(200).send('OK');
 });
 
 
@@ -106,7 +107,7 @@ app.listen(port, (err) => {
 
 
 
-
+// TODO pull shit stuff out into a file, and stop duplicating with scheduler
 function getCurrentWeek(weeks) {
   const today = moment().subtract(5, 'hours');
 

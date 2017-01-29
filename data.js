@@ -92,7 +92,7 @@ function setData(setter, cb) {
   })
 }
 
-function confirmWeek(name) {
+function markWeekComplete(name) {
   const uri = `${ROUTE}api/mrclean/markWeekComplete/${name}`;
 
   return rp({
@@ -102,5 +102,5 @@ function confirmWeek(name) {
   })
 }
 
-module.exports = { getData, setData, confirmWeek, getWeek };
+module.exports = { getData, setData, markWeekComplete, getWeek };
 
