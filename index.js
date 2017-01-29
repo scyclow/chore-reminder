@@ -78,10 +78,17 @@ app.post('/markWeekComplete', (req, res) => {
 
   if (isCompletion) {
     const name = _.findKey(phoneNumbers, (value) => value === From)
-    console.log('TEXT FROM:', name)
+    if (!name) {
+      console.log('NAME NOT FOUND')
+      console.log('TEXT FROM NUMBER:', From)
+      console.log('ALL NUMBERS:', JSON.stringify(phoneNumbers, null, 3))
+    }
+    else {
+      console.log('RECEIVED TEXT FROM:', name)
+    }
     confirmWeek(name)
       .then(data => data.week.confirmations)
-      .then(sendConfirmationText)
+      // .then(sendConfirmationText)
       .catch(err => console.log(err))
   }
 
