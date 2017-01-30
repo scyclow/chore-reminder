@@ -111,9 +111,7 @@ app.listen(port, (err) => {
 function getCurrentWeek(weeks) {
   const today = moment().subtract(5, 'hours');
 
-  const currentWeekNumber = today.day() > 0
-    ? today.isoWeek()
-    : today.isoWeek() - 1; // if sunday, count towards previous week
+  const currentWeekNumber = today.isoWeek();
 
   return _.find(weeks, week => week.weekNumber === currentWeekNumber);
 }

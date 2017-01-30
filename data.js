@@ -49,9 +49,7 @@ function getData(cb = _.noop) {
 }
 
 function getCurrentWeek(weeks) {
-  const currentWeekNumber = today.day() > 0
-    ? today.isoWeek()
-    : today.isoWeek() - 1; // if sunday, count towards previous week
+  const currentWeekNumber = today.isoWeek();
 
   return _.find(weeks, week => week.weekNumber === currentWeekNumber);
 }
