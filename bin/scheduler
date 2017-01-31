@@ -22,7 +22,7 @@ const {
 
 
 const today = moment().subtract(5, 'hours'); // CONVERT TO EASTERN (script ran in UTC)
-const daysToNotify = [4,5,6,0];
+const daysToNotify = [1,4,5,6,0];
 if (!_.includes(daysToNotify, today.day())) return;
 
 
@@ -91,6 +91,7 @@ getWeek()
     const phoneNumber = phoneNumbers[week.name];
 
     if (today.day() === 1 && today.hour() === 18) {
+      console.log('SENT MONDAY TEXT')
       _.each(phoneNumbers, (number, nameToText) => {
         const someoneNeeds = week.name === nameToText
           ? 'YOU need'
