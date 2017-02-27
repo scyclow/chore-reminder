@@ -90,15 +90,17 @@ getWeek()
 
     const phoneNumber = phoneNumbers[week.name];
 
-    if (today.day() === 1 && today.hour() === 22) {
-      console.log('SENT MONDAY TEXT')
-      _.each(phoneNumbers, (number, nameToText) => {
-        const someoneNeeds = week.name === nameToText
-          ? 'YOU need'
-          : `${week.name} needs`;
+    if (today.day() === 1) {
+      if (today.hour() === 22) {
+        console.log('SENT MONDAY TEXT')
+        _.each(phoneNumbers, (number, nameToText) => {
+          const someoneNeeds = week.name === nameToText
+            ? 'YOU need'
+            : `${week.name} needs`;
 
-        sendTextMessage(number, `Good evening ${nameToText}, this week (${week.weekNumber}) ${someoneNeeds} to clean the apartment`);
-      })
+          sendTextMessage(number, `Good evening ${nameToText}, this week (${week.weekNumber}) ${someoneNeeds} to clean the apartment`);
+        })
+      }
     }
     else {
       sendTextMessage(phoneNumber, cleanAptMessage(week.name));
