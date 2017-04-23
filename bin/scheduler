@@ -3,6 +3,11 @@
 /*
   jobs scheduled at https://scheduler.heroku.com/dashboard
   Should run DAILY at the following times IN UTC:
+    16:00 (UTC) => 11:00 (ET)
+    17:00 (UTC) => 12:00 (ET)
+    18:00 (UTC) => 13:00 (ET)
+    19:00 (UTC) => 14:00 (ET)
+    20:00 (UTC) => 15:00 (ET)
     23:00 (UTC) => 18:00 (ET)
     23:30 (UTC) => 18:30 (ET)
     01:00 (UTC) => 20:00 (ET)
@@ -22,8 +27,9 @@ const {
 
 
 const today = moment().subtract(5, 'hours'); // CONVERT TO EASTERN (script ran in UTC)
+const dayOfWeek = today.day()
 const daysToNotify = [1,4,5,6,0];
-if (!_.includes(daysToNotify, today.day())) return;
+if (!_.includes(daysToNotify, dayOfWeek)) return;
 
 
 const phoneNumbers = {
@@ -90,7 +96,7 @@ getWeek()
 
     const phoneNumber = phoneNumbers[week.name];
 
-    if (today.day() === 1) {
+    if (dayOfWeek === 1) {
       if (today.hour() === 22) {
         console.log('SENT MONDAY TEXT')
         _.each(phoneNumbers, (number, nameToText) => {
@@ -102,9 +108,20 @@ getWeek()
         })
       }
     }
-    else {
+    else if (dayOfWeek === 4 || dayOfWeek === 5) {
+      if (today.hour() === 22) {
+        sendTextMessage(phoneNumber, cleanAptMessage(week.name));
+      }
+    }
+    else if (dayOfWeek === 6) {
+      if (today.hour() === 11 || today.hour() === 15) {
+        sendTextMessage(phoneNumber, cleanAptMessage(week.name));
+      }
+    }
+    else if (dayOfWeek === 0) {
       sendTextMessage(phoneNumber, cleanAptMessage(week.name));
     }
+
     console.log('WEEK:', week)
 
     console.log(`Scheduler ran at ${today.format('dddd, MMMM Do YYYY, HH:mm:ss')} Eastern`);
