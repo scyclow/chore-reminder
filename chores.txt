@@ -16,9 +16,9 @@
 15,steve
 16,tom
 17,max
-18,steve
+18,max
 19,tom
-20,max
+20,steve
 21,steve
 22,tom
 23,max
