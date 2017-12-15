@@ -69,6 +69,7 @@ app.post('/markWeekComplete', (req, res) => {
 
   const isReminder = Body.toLowerCase().match(/^remind/)
   const isCompletion = Body.toLowerCase().match(/(clean)|(confirm)|(yes)/);
+  const isDishes = Body.toLowerCase().match(/dishes/);
 
   if (isReminder) {
     // TODO pull out actual texting logic -- have scheduler and this code call the texting logic
@@ -90,7 +91,10 @@ app.post('/markWeekComplete', (req, res) => {
       .then(data => data.week.confirmations)
       .then(sendConfirmationText)
       .catch(err => console.log(err))
+  }
 
+  else if (isDishes) {
+    sendTextMessage(phoneNumbers.tom, 'Tom, do the dishes.')
   }
 
   res.status(200).send('OK');
