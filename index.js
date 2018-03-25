@@ -70,6 +70,8 @@ app.post('/markWeekComplete', (req, res) => {
   const isReminder = Body.toLowerCase().match(/^remind/)
   const isCompletion = Body.toLowerCase().match(/(clean)|(confirm)|(yes)/);
   const isDishes = Body.toLowerCase().match(/dishes/);
+  const isAsshole = Body.toLowerCase().match(/asshole/);
+  const name = _.findKey(phoneNumbers, (value) => value === From)
 
   if (isReminder) {
     // TODO pull out actual texting logic -- have scheduler and this code call the texting logic
@@ -78,7 +80,6 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isCompletion) {
-    const name = _.findKey(phoneNumbers, (value) => value === From)
     if (!name) {
       console.log('NAME NOT FOUND')
       console.log('TEXT FROM NUMBER:', From)
@@ -94,7 +95,10 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isDishes) {
-    sendTextMessage(phoneNumbers.tom, 'Tom, do the dishes.')
+    // sendTextMessage(phoneNumbers.tom, 'Tom, do the dishes.')
+    if (From === phoneNumbers.steve) {
+      sendTextMessage(phoneNumbers.steve, 'Max, do the dishes.')
+    }
   }
 
   res.status(200).send('OK');
