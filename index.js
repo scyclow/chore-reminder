@@ -107,7 +107,7 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isAsshole) {
-    sendTextMessage(phoneNumbers.tom, 'Max, you\'re an asshole.')
+    sendTextMessage(phoneNumbers.max, 'Max, you\'re an asshole.')
   }
 
   res.status(200).send('OK');
