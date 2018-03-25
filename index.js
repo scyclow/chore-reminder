@@ -95,10 +95,19 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isDishes) {
-    // sendTextMessage(phoneNumbers.tom, 'Tom, do the dishes.')
-    if (From === phoneNumbers.steve) {
-      sendTextMessage(phoneNumbers.steve, 'Max, do the dishes.')
+    if (From === phoneNumbers.max) {
+      sendTextMessage(phoneNumbers.max, 'Max, do the dishes.')
     }
+
+    if (From === phoneNumbers.tom) {
+      sendTextMessage(phoneNumbers.max, 'Max, do the dishes.')
+    } else {
+      sendTextMessage(phoneNumbers.tom, 'Tom, do the dishes.')
+    }
+  }
+
+  else if (isAsshole) {
+    sendTextMessage(phoneNumbers.tom, 'Max, you\'re an asshole.')
   }
 
   res.status(200).send('OK');
