@@ -95,14 +95,25 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isDishes) {
-    if (From === phoneNumbers.max) {
-      sendTextMessage(phoneNumbers.max, 'Max, do the dishes.')
-    }
+    const numberOfTickets = Number(Body.split(' ')[1])
+
+    const lotteryTickets =
+      numberOfTickets === 0 ? 'no more lottery tickets'
+      : numberOfTickets === 1 ? 'one lottery ticket each'
+      : `${numberOfTickets} lottery tickets, each`
+
 
     if (From === phoneNumbers.tom) {
-      sendTextMessage(phoneNumbers.max, 'Max, do the dishes.')
+      sendTextMessage(phoneNumbers.tom, 'Shut up Tom.')
     } else {
-      sendTextMessage(phoneNumbers.tom, 'Tom, do the dishes.')
+      if (isNaN(numberOfTickets)) {
+        sendTextMessage(phoneNumbers.tom, `Tom, do the dishes`)
+
+      } else {
+        sendTextMessage(phoneNumbers.tom, `Tom, it's been a while since you've done the dishes. You know owe Max and Steve ${lotteryTickets}.`)
+        sendTextMessage(phoneNumbers.max, `Tom owes Max and Steve ${lotteryTickets}.`)
+        sendTextMessage(phoneNumbers.steve, `Tom owes Max and Steve ${lotteryTickets}.`)
+      }
     }
   }
 
