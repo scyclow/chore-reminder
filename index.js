@@ -107,13 +107,12 @@ app.post('/markWeekComplete', (req, res) => {
       sendTextMessage(phoneNumbers.tom, 'Shut up Tom.')
     } else {
       if (isNaN(numberOfTickets)) {
-        sendTextMessage(phoneNumbers.steve, `Tom, do the dishes`)
+        sendTextMessage(phoneNumbers.tom, `Tom, do the dishes`)
 
       } else {
-        // sendTextMessage(phoneNumbers.tom, `Tom, it's been a while since you've done the dishes. You know owe Max and Steve ${lotteryTickets}.`)
-        // sendTextMessage(phoneNumbers.steve, `Tom owes Max and Steve ${lotteryTickets}.`)
-        sendTextMessage(phoneNumbers.max, `Tom owes Max and Steve ${lotteryTickets}.`)
-        sendTextMessage(phoneNumbers.steve, `Tom, it's been a while since you've done the dishes. You know owe Max and Steve ${lotteryTickets}.`)
+        sendTextMessage(phoneNumbers.tom, `Tom, it's been a while since you've done the dishes. You now owe Max and Steve ${lotteryTickets}.`)
+        sendTextMessage(phoneNumbers.max, `Tom now owes Max and Steve ${lotteryTickets}.`)
+        sendTextMessage(phoneNumbers.steve, `Tom now owes Max and Steve ${lotteryTickets}.`)
       }
     }
   }
