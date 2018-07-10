@@ -115,10 +115,11 @@ app.post('/markWeekComplete', (req, res) => {
       sendTextMessage(phoneNumbers[washer], `${name}, do the dishes`)
 
     } else {
-      sendTextMessage(phoneNumbers[washer], `${name}, it's been a while since you've done the dishes. You now owe Max and Steve ${lotteryTickets}.`)
+      const benefactorNames = `${nameMap[benefactors[0]]} and ${nameMap[benefactors[1]]}`
+      sendTextMessage(phoneNumbers[washer], `${name}, it's been a while since you've done the dishes. You now owe ${benefactorNames} ${lotteryTickets}.`)
 
       benefactors.forEach(b => {
-        sendTextMessage(phoneNumbers[b], `${name} now owes ${nameMap[benefactors[0]]} and ${nameMap[benefactors[1]]} ${lotteryTickets}.`)
+        sendTextMessage(phoneNumbers[b], `${name} now owes ${benefactorNames} ${lotteryTickets}.`)
       })
     }
 
