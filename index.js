@@ -95,26 +95,33 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isDishes) {
-    const numberOfTickets = Number(Body.split(' ')[1])
+    const washer = Body.split(' ')[1].toLowerCase() || 'tom'
+    const nameMap = {tom: 'Tom', max: 'Max', steve: 'Steve'}
+    const name = nameMap[washer]
+    const numberOfTickets = Number(Body.split(' ')[2]) || NaN
 
     const lotteryTickets =
       numberOfTickets === 0 ? 'no more lottery tickets'
       : numberOfTickets === 1 ? 'one lottery ticket each'
       : `${numberOfTickets} lottery tickets, each`
 
+    const benefactors = {
+      tom: ['max', 'steve'],
+      max: ['tom', 'steve'],
+      steve: ['max', 'tom']
+    }[washer]
 
-    if (From === phoneNumbers.tom) {
-      sendTextMessage(phoneNumbers.tom, 'Shut up Tom.')
+    if (isNaN(numberOfTickets)) {
+      sendTextMessage(phoneNumbers[washer], `${name}, do the dishes`)
+
     } else {
-      if (isNaN(numberOfTickets)) {
-        sendTextMessage(phoneNumbers.tom, `Tom, do the dishes`)
+      sendTextMessage(phoneNumbers[washer], `${name}, it's been a while since you've done the dishes. You now owe Max and Steve ${lotteryTickets}.`)
 
-      } else {
-        sendTextMessage(phoneNumbers.tom, `Tom, it's been a while since you've done the dishes. You now owe Max and Steve ${lotteryTickets}.`)
-        sendTextMessage(phoneNumbers.max, `Tom now owes Max and Steve ${lotteryTickets}.`)
-        sendTextMessage(phoneNumbers.steve, `Tom now owes Max and Steve ${lotteryTickets}.`)
-      }
+      benefactors.forEach(b => {
+        sendTextMessage(phoneNumbers[b], `${name} now owes ${nameMap[benefactors[0]]} and ${nameMap[benefactors[1]]} ${lotteryTickets}.`)
+      })
     }
+
   }
 
   else if (isAsshole) {
