@@ -68,7 +68,7 @@ app.post('/markWeekComplete', (req, res) => {
   const { Body, From } = req.body;
 
   const isReminder = Body.toLowerCase().match(/^remind/)
-  const isCompletion = Body.toLowerCase().match(/(clean)|(confirm)|(yes)/);
+  const isCompletion = Body.toLowerCase().match(/(clean)|(confirm)|(yes)|(^y$)|(^1$)|(^true$)/);
   const isDishes = Body.toLowerCase().match(/dishes/);
   const isAsshole = Body.toLowerCase().match(/asshole/);
   const name = _.findKey(phoneNumbers, (value) => value === From)
