@@ -62,6 +62,18 @@ function sendConfirmationText(confirmations) {
   });
 }
 
+const jokes = [
+  `"I need help, George Sink," said Jimmy. "What is it?" said George Sink. "Can you wash my dishes?" said Jimmy.`,
+  `Knock knock. Who's there? Dishes. Dishes who? Dishes the police -- we have you surrounded.`,
+  `I don't like washing the dishes. It is very draining.`,
+  `Why didn't the clock like doing the dishes? It was a real time sink.`,
+  `What did the singer watch while he was washing the dishes? A soap opera.`,
+  `Here is an American proverb: No man has ever been shot while doing the dishes.`,
+  `How do you know your dog has died? The dishes keep piling up.`,
+  `Dogs do not grasp the concept of doing the dishes.`,
+  `Doing the dishes is like cleaning fish: no matter how often you do it, it still stinks.`
+]
+
 app.post('/markWeekComplete', (req, res) => {
   console.log(`Received a text from: ${JSON.stringify(req.body, null, 3)}`)
 
@@ -95,33 +107,36 @@ app.post('/markWeekComplete', (req, res) => {
   }
 
   else if (isDishes) {
-    const washer = Body.split(' ')[1].toLowerCase() || 'tom'
-    const nameMap = {tom: 'Tom', max: 'Max', steve: 'Steve'}
-    const name = nameMap[washer]
-    const numberOfTickets = Number(Body.split(' ')[2]) || NaN
+    _.forEach(phoneNumbers, number => {
+      sendTextMessage(number, `${_.sample(jokes)}\n\n ~~It's time to do the dishes~~`)
+    });
+    // const washer = Body.split(' ')[1].toLowerCase() || 'tom'
+    // const nameMap = {tom: 'Tom', max: 'Max', steve: 'Steve'}
+    // const name = nameMap[washer]
+    // const numberOfTickets = Number(Body.split(' ')[2]) || NaN
 
-    const lotteryTickets =
-      numberOfTickets === 0 ? 'no more lottery tickets'
-      : numberOfTickets === 1 ? 'one lottery ticket each'
-      : `${numberOfTickets} lottery tickets, each`
+    // const lotteryTickets =
+    //   numberOfTickets === 0 ? 'no more lottery tickets'
+    //   : numberOfTickets === 1 ? 'one lottery ticket each'
+    //   : `${numberOfTickets} lottery tickets, each`
 
-    const benefactors = {
-      tom: ['max', 'steve'],
-      max: ['tom', 'steve'],
-      steve: ['max', 'tom']
-    }[washer]
+    // const benefactors = {
+    //   tom: ['max', 'steve'],
+    //   max: ['tom', 'steve'],
+    //   steve: ['max', 'tom']
+    // }[washer]
 
-    if (isNaN(numberOfTickets)) {
-      sendTextMessage(phoneNumbers[washer], `${name}, do the dishes`)
+    // if (isNaN(numberOfTickets)) {
+    //   sendTextMessage(phoneNumbers[washer], `${name}, do the dishes`)
 
-    } else {
-      const benefactorNames = `${nameMap[benefactors[0]]} and ${nameMap[benefactors[1]]}`
-      sendTextMessage(phoneNumbers[washer], `${name}, it's been a while since you've done the dishes. You now owe ${benefactorNames} ${lotteryTickets}.`)
+    // } else {
+    //   const benefactorNames = `${nameMap[benefactors[0]]} and ${nameMap[benefactors[1]]}`
+    //   sendTextMessage(phoneNumbers[washer], `${name}, it's been a while since you've done the dishes. You now owe ${benefactorNames} ${lotteryTickets}.`)
 
-      benefactors.forEach(b => {
-        sendTextMessage(phoneNumbers[b], `${name} now owes ${benefactorNames} ${lotteryTickets}.`)
-      })
-    }
+    //   benefactors.forEach(b => {
+    //     sendTextMessage(phoneNumbers[b], `${name} now owes ${benefactorNames} ${lotteryTickets}.`)
+    //   })
+    // }
 
   }
 
