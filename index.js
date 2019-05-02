@@ -181,3 +181,4 @@ function sendTextMessage (phoneNumber, msg) {
     console.log(`Text sent to [${phoneNumber}] with message sid: ${message.sid}`);
   });
 }
+
